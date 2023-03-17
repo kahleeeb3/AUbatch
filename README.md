@@ -7,8 +7,11 @@ Batch scheduling system using the C programming language and the Pthread library
 1. making use of the execv()function to run jobs sorted in the job queue
 2. measuring the execution time and response time (a.k.a., turn‐around time) of each finished job
 
-More
-specifically, the scheduling module issues (produces) newly submitted jobs into the job queue, enforcing a scheduling policy; the dispatching module extracts (consumes) a job from the job queue to run the job.
+More specifically, the scheduling module issues (produces) newly submitted jobs into the job queue, enforcing a scheduling policy; the dispatching module extracts (consumes) a job from the job queue to run the job. 
+
+<!-- NOTES -->
+Jobs are serviced as soon as the user submits them. 
+
 
 ## Thread Synchronization:
 The threads library provides three synchronization mechanisms:

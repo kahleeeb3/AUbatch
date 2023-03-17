@@ -20,14 +20,23 @@ static const char *helpmenu[] = {
 
 int cmd_run(int nargs, char **args)
 {
-	if (nargs != 4)
+
+    if (nargs != 4)
 	{
 		printf("Usage: run <job> <time> <priority>\n");
 		return EINVAL;
 	}
 
+    
+    char *jobName  = args[1];
+    int executionTime = atoi(args[2]);
+    int priority = atoi(args[3]);
+    printf("%s, ",jobName);
+    printf("%d, ",executionTime);
+    printf("%d\n",priority);
+
 	/* Use execv to run the submitted job in AUbatch */
-	printf("use execv to run the job in AUbatch.\n");
+	// printf("use execv to run the job in AUbatch.\n");
 	return 0; /* if succeed */
 }
 

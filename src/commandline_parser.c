@@ -29,32 +29,6 @@ static struct
 	/* Please add more operations below. */
 	{NULL, NULL}};
 
-void commandline(){
-
-	// (1) Send Welcome Message
-	printf("Welcome to Caleb Powell's batch job scheduler Version 1.0\n");
-	printf("Type 'help' to find more about AUbatch commands.\n");
-	
-	// Define buffer to store the user command
-	char *buffer;
-	size_t bufsize = MAXCMDLINE;
-	buffer = (char *)malloc(bufsize * sizeof(char));
-
-	if (buffer == NULL)
-	{
-		perror("Unable to malloc buffer");
-		exit(1);
-	}
-
-	// (2) Prompt for user input
-	while(1){
-		printf("\n>");
-		getline(&buffer, &bufsize, stdin); // get user input
-		cmd_dispatch(buffer); // evaluate user input
-	}
-	
-}
-
 
 int cmd_dispatch(char *cmd){
 
@@ -88,7 +62,6 @@ int cmd_dispatch(char *cmd){
 	int i, result;
 	for (i = 0; cmdtable[i].name; i++){
 		// if the name is not NULL and mathes the argument given by the user
-
 		if (*cmdtable[i].name && !strcmp(args[0], cmdtable[i].name)){
 			// terminate program if cmd doesn't have an associated function
 			assert(cmdtable[i].func != NULL);
@@ -98,6 +71,6 @@ int cmd_dispatch(char *cmd){
 			return result;
 		}
 	}
-	// printf("%s: Command not found\n", args[0]);
+	printf("Command (%s) not found\n", word);
 	return EINVAL;
 }
