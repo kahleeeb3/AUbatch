@@ -1,13 +1,26 @@
 # AUbatch- A Pthread‐based Batch Scheduling System
-The goal of this project is to design and implement a batch scheduling system called
-AUbatch using the C programming language and the Pthread library. AUbatch is
-comprised of two distinctive and collaborating threads, namely, the scheduling thread
-and the dispatching thread. The scheduling thread enforces scheduling policies, whereas
-the dispatching thread has submitted jobs executed by the execv() function. The two
-threads are created by the pthread_create () function.
+Batch scheduling system using the C programming language and the Pthread library. AUbatch is comprised of two distinctive and collaborating threads: the scheduling thread, and the dispatching thread.
+> The **scheduling thread** is in charge of:
+1. accepting submitted jobs from users and  
+2. enforcing a chosen scheduling policy.  
+> The **dispatching thread** is in charge of:  
+1. making use of the execv()function to run jobs sorted in the job queue
+2. measuring the execution time and response time (a.k.a., turn‐around time) of each finished job
+
+<!-- The scheduling thread enforces scheduling policies, whereas the dispatching thread has submitted jobs executed by the execv() function. The two
+threads are created by the pthread_create () function. -->
+
+## Thread Synchronization:
+The threads library provides three synchronization mechanisms:
+
+- **mutexes** - Mutual exclusion lock: Block access to variables by other threads. This enforces exclusive access by a thread to a variable or set of variables.
+- **joins** - Make a thread wait till others are complete (terminated).
+- **condition variables** - data type pthread_cond_t
+
+The synchronization of our two threads **must be implemented by condition variables.** In addition to condition variables, mutex must be adopted to solve the **critical section problem** in AUbatch.
 
 
-## User Interface
+## Using AUbatch:
 ### 1. Help Information
 ```
 $ ./aubatch 
