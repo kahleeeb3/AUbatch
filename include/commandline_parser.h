@@ -1,2 +1,7 @@
+#define MAXMENUARGS 4
+#define MAXCMDLINE 64
+#define EINVAL 1
+#define E2BIG 2
 
-void *print_message_function( void *ptr );
+void commandline();
+int cmd_dispatch(char *cmd);
