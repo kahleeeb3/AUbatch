@@ -39,8 +39,7 @@ int cmd_quit(int nargs, char **args)
 
 void showmenu(const char *name, const char *x[])
 {
-	// printf("\n");
-	// printf("%s\n", name);
+	printf("\n");
 
     int i;
     for(i = 0; x[i]; i++){
