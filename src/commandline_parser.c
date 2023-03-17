@@ -60,10 +60,11 @@ int cmd_dispatch(char *cmd){
 
 	// (1) split the user input into an argument array
 	char *word; // pointer to the word value
+	char *context; // ensures correct context during threading
 	int nargs = 0; // number of arguments
 	char *args[MAXMENUARGS]; // array of arguments
 
-	word = strtok(cmd, " "); // get the first word
+	word = strtok_r(cmd, " ", &context);
 
 	while (word != NULL) {
 
@@ -75,7 +76,7 @@ int cmd_dispatch(char *cmd){
 			return E2BIG;
 		}
 		args[nargs++] = word; // add word to the argument list
-		word = strtok(NULL, " "); // NULL to continue tokenizing the same string
+		word = strtok_r(NULL, " ", &context); // NULL to continue tokenizing the same string
     }
 
 	// if no arguments were passed

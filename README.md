@@ -1,4 +1,12 @@
 # AUbatch- A Pthread‐based Batch Scheduling System
+The goal of this project is to design and implement a batch scheduling system called
+AUbatch using the C programming language and the Pthread library. AUbatch is
+comprised of two distinctive and collaborating threads, namely, the scheduling thread
+and the dispatching thread. The scheduling thread enforces scheduling policies, whereas
+the dispatching thread has submitted jobs executed by the execv() function. The two
+threads are created by the pthread_create () function.
+
+
 ## User Interface
 ### 1. Help Information
 ```

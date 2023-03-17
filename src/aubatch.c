@@ -10,19 +10,26 @@
 #include <stdlib.h>
 #include <pthread.h>
 
+void *print_message_function(void *ptr){
+    char *message;
+    message = (char *)ptr;
+    printf("%s \n", message);
+	return 0;
+}
+
 int main(){
 
     commandline(); // run user interface
 
-    // pthread_t thread1, thread2;
-    // char *message1 = "Thread 1";
-    // char *message2 = "Thread 2";
+    // pthread_t command_thread, executor_thread; /* Two concurrent threads */
+    // char *message1 = "Command Thread";
+    // char *message2 = "Executor Thread";
     // int iret1, iret2;
 
     /* Create independent threads each of which will execute function */
 
-    // iret1 = pthread_create(&thread1, NULL, print_message_function, (void *)message1);
-    // iret2 = pthread_create(&thread2, NULL, print_message_function, (void *)message2);
+    // iret1 = pthread_create(&command_thread, NULL, print_message_function, (void *)message1);
+    // iret2 = pthread_create(&executor_thread, NULL, print_message_function, (void *)message2);
 
     /* Wait till threads are complete before main continues. Unless we  */
     /* wait we run the risk of executing an exit which will terminate   */
