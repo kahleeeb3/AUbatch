@@ -26,6 +26,10 @@ static struct
 	{"run", cmd_run},
 	{"q\n", cmd_quit},
 	{"quit\n", cmd_quit},
+	{"list\n", cmd_list},
+	{"l\n", cmd_list},
+	{"fcfs\n", cmd_scheduling},
+	{"sjf\n", cmd_scheduling},
 	/* Please add more operations below. */
 	{NULL, NULL}};
 

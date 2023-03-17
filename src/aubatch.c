@@ -20,19 +20,9 @@ pthread_cond_t cmd_buf_not_full;  // Condition variable for buf_not_full
 pthread_cond_t cmd_buf_not_empty; // Condition variable for buf_not_empty
 
 /* Global shared variables */
-
 u_int buf_head;
 u_int buf_tail;
 u_int jobCount;
-
-struct job {
-    char *name;     // job name
-    int time;       // time required to complete the job
-    int priority;   // job priority
-};
-
-struct job job_buffer[BUF_SIZE];
-
 
 int main(){
 
@@ -104,7 +94,9 @@ void *commandline(void *ptr){
         getline(&cmd, &cmdSize, stdin); // get user input
         cmd_dispatch(cmd); // evaluate user input
         free(cmd);
-        job_buffer[0].name = "test"; //run sample_job 10 1
+        // printf("%d\n", job_buffer[0].time);//run sample_job 10 1
+        pthread_cond_signal(&cmd_buf_not_empty); // tell execution process that the buffer isnt empty
+        pthread_mutex_unlock(&cmd_queue_lock); // unlock the job queue
     }
 	
 }
