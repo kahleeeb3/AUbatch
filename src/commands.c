@@ -102,7 +102,8 @@ int cmd_scheduling(int nargs, char **args){
 int cmd_quit(int nargs, char **args)
 {
 	printf("Please display performance information before exiting AUbatch!\n");
-	exit(0);
+	// exit(0);
+    return QUITCMD;
 }
 
 void showmenu(const char *name, const char *x[])

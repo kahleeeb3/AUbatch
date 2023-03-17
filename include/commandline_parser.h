@@ -5,6 +5,7 @@
 #define MAXJOBNAMELENGTH 10 // maximum length of job name
 #define EINVAL 1 // error for invalid input
 #define E2BIG 2 // error for too big
+#define QUITCMD -1
 #define BUF_SIZE 5 // Size of job queue
 
 struct job {

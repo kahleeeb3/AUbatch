@@ -64,9 +64,10 @@ void *commandline(void *ptr){
 
     char *cmd; //stores the command
     size_t cmdSize = MAXCMDLINE; // max size of command
+    int promptUser = 0; // continue to prompt user
 
     // Accept jobs from the user
-    while(1){
+    while(promptUser != QUITCMD){
 
         // protect queue from concurrent access
         pthread_mutex_lock(&cmd_queue_lock);
@@ -93,19 +94,19 @@ void *commandline(void *ptr){
 
         getline(&cmd, &cmdSize, stdin); // get user input
         printf("\n");
-        cmd_dispatch(cmd); // evaluate user input
+        promptUser = cmd_dispatch(cmd); // evaluate user input
         free(cmd);
         // printf("%d\n", job_buffer[0].time);//run sample_job 10 1
         pthread_cond_signal(&cmd_buf_not_empty); // tell execution process that the buffer isnt empty
         pthread_mutex_unlock(&cmd_queue_lock); // unlock the job queue
     }
-	
+    return 0;
 }
 
 void *print_message_function(void *ptr){
-    pthread_cond_wait(&cmd_buf_not_full, &cmd_queue_lock); // wait for signal
-    char *message;
-    message = (char *)ptr;
-    printf("%s \n", message);
+    // pthread_cond_wait(&cmd_buf_not_full, &cmd_queue_lock); // wait for signal
+    // char *message;
+    // message = (char *)ptr;
+    // printf("%s \n", message);
 	return 0;
 }
