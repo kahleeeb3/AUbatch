@@ -7,8 +7,8 @@ Batch scheduling system using the C programming language and the Pthread library
 1. making use of the execv()function to run jobs sorted in the job queue
 2. measuring the execution time and response time (a.k.a., turn‐around time) of each finished job
 
-<!-- The scheduling thread enforces scheduling policies, whereas the dispatching thread has submitted jobs executed by the execv() function. The two
-threads are created by the pthread_create () function. -->
+More
+specifically, the scheduling module issues (produces) newly submitted jobs into the job queue, enforcing a scheduling policy; the dispatching module extracts (consumes) a job from the job queue to run the job.
 
 ## Thread Synchronization:
 The threads library provides three synchronization mechanisms:
@@ -17,10 +17,26 @@ The threads library provides three synchronization mechanisms:
 - **joins** - Make a thread wait till others are complete (terminated).
 - **condition variables** - data type pthread_cond_t
 
-The synchronization of our two threads **must be implemented by condition variables.** In addition to condition variables, mutex must be adopted to solve the **critical section problem** in AUbatch.
+Apart from critical sections, the synchronization of our two threads **must be implemented by condition variables.** In addition to condition variables, **mutex must be adopted** to solve the critical section problem in AUbatch since the two threads share a job queue.
 
+## PThread Functions:
+A list of important PThread functions to be employed in this project is given below:
 
-## Using AUbatch:
+**Thread Creation:**
+- pthread_create(thread, attr, start_routine, arg);
+
+**The mutex functions:**
+- pthread_mutex_lock(mutex);
+- pthread_mutex_unlock (mutex);
+
+**The condition‐variable functions:**
+- pthread_cond_init(condition, attr);
+- pthread_cond_wait(condition, mutex);
+- pthread_cond_signal(condition);
+
+To learn more about the pthread library: [POSIX thread (pthread) libraries](https://www.cs.cmu.edu/afs/cs/academic/class/15492-f07/www/pthreads.html)
+
+<!-- ## Using AUbatch:
 ### 1. Help Information
 ```
 $ ./aubatch 
@@ -109,4 +125,4 @@ Average waiting time: 16.69 seconds
 Throughput: 0.031 No./second
 
 $ 
-```
+``` -->
