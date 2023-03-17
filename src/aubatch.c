@@ -92,6 +92,7 @@ void *commandline(void *ptr){
         }
 
         getline(&cmd, &cmdSize, stdin); // get user input
+        printf("\n");
         cmd_dispatch(cmd); // evaluate user input
         free(cmd);
         // printf("%d\n", job_buffer[0].time);//run sample_job 10 1

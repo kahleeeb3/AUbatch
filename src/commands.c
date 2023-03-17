@@ -24,7 +24,7 @@ static const char *helpmenu[] = {
 
 int cmd_list(int nargs, char **args)
 {
-    printf("\nTotal number of jobs in the queue: %d\n",jobCount);
+    printf("Total number of jobs in the queue: %d\n",jobCount);
 
     // Print the menu
     printf("Scheduling Policy: %s.\n",policy);
@@ -67,13 +67,13 @@ int cmd_run(int nargs, char **args)
     if (buf_head == BUF_SIZE)
             buf_head = 0;
 
-    printf("\nJob %s was submitted.\n",jobName);
+    printf("Job %s was submitted.\n",jobName);
     printf("Total number of jobs in the queue: %d\n",jobCount);
     printf("Expected waiting time: %d seconds\n", 0);
     printf("Scheduling Policy: %s.\n", policy);
 
 	/* Use execv to run the submitted job in AUbatch */
-	printf("use execv to run the job in AUbatch.\n");
+	printf("\nuse execv to run the job in AUbatch.\n");
 	return 0; /* if succeed */
 }
 
@@ -92,7 +92,7 @@ int cmd_scheduling(int nargs, char **args){
         return 1;
     }
 
-    printf("\nScheduling policy is switched to %s. ", policy);
+    printf("Scheduling policy is switched to %s. ", policy);
     printf("All the %d waiting jobs have been rescheduled.\n", jobCount);
 
     return 0;
@@ -107,9 +107,7 @@ int cmd_quit(int nargs, char **args)
 
 void showmenu(const char *name, const char *x[])
 {
-	printf("\n");
-
-    int i;
+	int i;
     for(i = 0; x[i]; i++){
         printf("%s\n",x[i]);
     }
