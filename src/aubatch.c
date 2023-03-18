@@ -14,15 +14,7 @@
 #include <pthread.h>
 #include <time.h>
 #include <unistd.h>
-
-#define MAX_JOB_NAME_LENGTH 10 // maximum length of job name
-#define TOTAL_JOB_NUM 5 // total number of jobs to submit 
-#define QUEUE_SIZE 10 // size of job queue
-#define ARRIVAL_RATE 1 //number of jobs submitted every second
-#define SERVICE_RATE 1 //number of jobs submitted every second
-
-void *producer();
-void *executor();
+#include <string.h>
 
 pthread_mutex_t job_queue_lock;   // Lock for critical sections
 pthread_cond_t job_queue_not_full;  // Condition variable for not full queue
@@ -46,6 +38,7 @@ struct job {
 struct job job_queue[QUEUE_SIZE];
 
 int main(){
+    printf("\n");
     srand(time(NULL)); // seed the random number generator with the current time
     // commandline(); // run user interface
     int iret1, iret2; // thread return values
@@ -76,6 +69,20 @@ int main(){
     printf("command_thread returns: %d\n", iret1);
     printf("executor_thread returns: %d\n", iret2);
     exit(0);
+}
+
+void print_job_queue(){
+    printf("============\n");
+    int i;
+    for (i = 0; i < QUEUE_SIZE; i++) {
+        if (job_queue[i].name[0] == '\0') {
+            printf("NONE");
+        }
+        printf("%s", job_queue[i].name);
+        printf(" %d", job_queue[i].cpu_time);
+        printf(" %d\n", job_queue[i].priority);
+    }
+    printf("\n");
 }
 
 struct job create_job(){
@@ -129,6 +136,7 @@ void *producer(){
         }
         printf("Thread1: Added Job: {%s, %d, %d}. Total jobs: %d\n", new_job.name, 
         new_job.cpu_time, new_job.priority, jobs_submitted);
+        print_job_queue();
         pthread_cond_signal(&job_queue_not_empty); // tell execution process that the buffer isnt empty
         pthread_mutex_unlock(&job_queue_lock); // unlock the job queue
         sleep(ARRIVAL_RATE);
@@ -137,8 +145,11 @@ void *producer(){
     return 0;
 }
 
+
 struct job remove_from_queue(){
+    struct job empty_job = { .name = {0}, .cpu_time = 0, .priority = 0 };
     struct job removed_job = job_queue[job_queue_tail];
+    job_queue[job_queue_tail] = empty_job;
     // free(job_queue[job_queue_tail]);
     return removed_job;
 }
@@ -155,6 +166,7 @@ void *executor(){
         struct job removed_job = remove_from_queue();
         printf("Thread2: Removed Job: {%s, %d, %d}. Total jobs: %d\n", removed_job.name, 
         removed_job.cpu_time, removed_job.priority, jobs_submitted);
+        print_job_queue();
         sleep(SERVICE_RATE); // sleep for service rate
         job_queue_tail++;
         if(job_queue_tail == QUEUE_SIZE){
