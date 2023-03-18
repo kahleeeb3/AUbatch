@@ -102,15 +102,15 @@ void run_cmd(char *cmd)
         int status;
         waitpid(pid, &status, 0);
 
-        if (WIFEXITED(status)) { // Child process terminated normally
-            printf("Child process terminated with status %d.\n", WEXITSTATUS(status));
-        } 
-        else if (WIFSIGNALED(status)) { // Child process terminated due to a signal
-            printf("Child process terminated due to signal %d.\n", WTERMSIG(status));
-        } 
-        else { // Something else happened
-            printf("Child process terminated abnormally.\n");
-        }
+        // if (WIFEXITED(status)) { // Child process terminated normally
+        //     printf("Child process terminated with status %d.\n", WEXITSTATUS(status));
+        // } 
+        // else if (WIFSIGNALED(status)) { // Child process terminated due to a signal
+        //     printf("Child process terminated due to signal %d.\n", WTERMSIG(status));
+        // } 
+        // else { // Something else happened
+        //     printf("Child process terminated abnormally.\n");
+        // }
         
     }
 }
@@ -163,18 +163,25 @@ void *scheduler(){
         pthread_mutex_lock(&job_queue_lock); // lock the job queue
         // wait for queue to not be full
         while(jobs_in_queue == QUEUE_SIZE){
+            printf("Buffer full. Please Wait.\n");
             pthread_cond_wait(&job_queue_not_full, &job_queue_lock);
         }
         pthread_mutex_unlock(&job_queue_lock); // unlock the job queue since creat_job() is not critical
 
         // GET USER INPUT AS A STRING
         char *temp_cmd;
-        temp_cmd = (char *)malloc(MAX_CMD * sizeof(char));
+        size_t cmd_size = MAX_CMD;
+        temp_cmd = (char *)malloc(cmd_size * sizeof(char));
         automated_input(temp_cmd); // simulate a user input of "run process x x"
+        // printf("\n>");
+		// getline(&temp_cmd, &cmd_size, stdin);
 
         // PARSE THE USER INPUT
         char *args[MAX_ARGS];
         parsecmd(temp_cmd, args);
+        if( strcmp(args[0], "run") || strcmp(args[1], "process")){
+            exit(0);
+        }
         
         // create the job
         struct job new_job = create_job(args);
@@ -192,7 +199,7 @@ void *scheduler(){
         // print_job_queue();
         pthread_cond_signal(&job_queue_not_empty); // tell execution process that the buffer isnt empty
         pthread_mutex_unlock(&job_queue_lock); // unlock the job queue
-        sleep(ARRIVAL_RATE);
+        // sleep(ARRIVAL_RATE);
     }
 
     return 0;

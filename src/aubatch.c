@@ -13,7 +13,6 @@ pthread_cond_t job_queue_not_full;  // Condition variable for not full queue
 pthread_cond_t job_queue_not_empty; // Condition variable for non empty queue
 
 int main(){
-    printf("\n");
     srand(time(NULL)); // seed the random number generator with the current time
     // commandline(); // run user interface
     int iret1, iret2; // thread return values

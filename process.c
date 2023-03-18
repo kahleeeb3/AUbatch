@@ -20,9 +20,9 @@
 int main(int argc, char *argv[] )
 {
   int sleepTime = atoi(argv[1]);
-  printf("this process will sleep for %d secs.\n",sleepTime);
+  // printf("this process will sleep for %d secs.\n",sleepTime);
   sleep(sleepTime);
-  printf("Finished Job.\n");
+  printf("Thread2: Finished Executing Job.\n");
 
   return 0;
 }
