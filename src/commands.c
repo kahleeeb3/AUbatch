@@ -87,6 +87,10 @@ int cmd_scheduling(int nargs, char **args){
         strcpy(policy,"sjf");
     }
 
+    else if(strcmp(args[0],"priority\n") == 0){
+        strcpy(policy,"priority");
+    }
+
     else{
         printf("Not a scheduling option.\n");
         return 1;

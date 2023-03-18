@@ -30,6 +30,7 @@ static struct
 	{"l\n", cmd_list},
 	{"fcfs\n", cmd_scheduling},
 	{"sjf\n", cmd_scheduling},
+	{"priority\n", cmd_scheduling},
 	/* Please add more operations below. */
 	{NULL, NULL}};
 
