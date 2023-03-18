@@ -129,3 +129,40 @@ Throughput: 0.031 No./second
 
 $ 
 ``` -->
+
+```C
+void *producer(){
+    while(!done()){
+        pthread_mutex_lock(&job_queue_lock); // lock the job queue
+        // wait for queue to not be full
+        while(jobCount == QUEUE_SIZE){
+            pthread_cond_wait(&job_queue_not_full, &job_queue_lock);
+        }
+        pthread_mutex_unlock(&job_queue_lock); // unlock the job queue since creat_job() is not critical
+
+        create_job(); // create the job
+        
+        pthread_mutex_lock(&job_queue_lock); // lock the job queue
+        insert_into_queue(); // add job to queue
+        jobCount++; // increase the job count
+        pthread_cond_signal(&job_queue_not_empty); // tell execution process that the buffer isnt empty
+        pthread_mutex_unlock(&job_queue_lock); // unlock the job queue
+
+    }
+}
+```
+
+```C
+void *executor(){
+    while (!done()){
+        pthread_mutex_lock(&job_queue_lock); // lock the job queue
+        // wait for queue to not be empty
+        while(jobCount == 0){
+            pthread_cond_wait(&job_queue_not_empty, &job_queue_lock);
+        }
+        jobCount--; //decrease the job count
+        execv(); //execute the command?
+        remove_from_queue();
+    }
+}
+```
