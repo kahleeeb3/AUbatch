@@ -26,7 +26,7 @@ INCS = $(patsubst %,$(INC_DIR)/%,$(INC_LIST)) # add INC_DIR to INC_LIST
 OBJ = $(patsubst %,$(OBJ_DIR)/%,$(OBJ_LIST)) # add OBJ_DIR to OBJ_LIST
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(INCS)
-	$(CC) -c -o $@ $< $(CFLAGS)
+	$(CC) -g -c -o $@ $< $(CFLAGS)
 
 $(TARGET): $(OBJ)
 	$(CC) -o $@ $^ $(CFLAGS)
