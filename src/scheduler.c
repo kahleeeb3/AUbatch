@@ -303,9 +303,71 @@ void export_data(struct job my_job, int job_number){
     // printf("saving file data/job_%d.txt\n", job_number);
 }
 
-void show_stats(){
+
+void read_job_from_file(const char* filename, struct job* job) {
+    // Open the file for reading
+    FILE* file = fopen(filename, "r");
+    if (!file) {
+        perror("Unable to open file");
+        return;
+    }
+    
+    // Read the job data from the file
+    fscanf(file, "%[^,],%d,%d,%ld,%ld,%d\n", job->name, &job->cpu_time, &job->priority, &job->start_time, &job->finish_time, &job->wait_time);
+
+    // Close the file
+    fclose(file);
+}
+
+
+int show_stats(){
 
     printf("Getting data\n");
+
+    struct job jobs[TOTAL_JOB_NUM];
+    int num_jobs = 0;
+    
+    // Open the data directory for reading
+    DIR* dir = opendir("data");
+    if (!dir) {
+        perror("Unable to open directory");
+        return 1;
+    }
+
+    // Iterate over all files in the data directory
+    struct dirent* entry;
+    while ((entry = readdir(dir))) {
+        // Check if the file name starts with "job_" and ends with ".txt"
+        if (strstr(entry->d_name, "job_") == entry->d_name && strstr(entry->d_name, ".txt") != NULL) {
+            // Construct the file path
+            char filepath[100];
+            snprintf(filepath, sizeof(filepath), "data/%s", entry->d_name);
+            
+            // Read the job from the file and store it in the jobs array
+            if (num_jobs < TOTAL_JOB_NUM) {
+                read_job_from_file(filepath, &jobs[num_jobs]);
+                num_jobs++;
+            }
+        }
+    }
+
+
+   // Close the data directory
+    closedir(dir);
+    
+    // Print the jobs array
+    int i;
+    for (i = 0; i < num_jobs; i++) {
+        printf("Job %d:\n", i);
+        printf("  Name: %s\n", jobs[i].name);
+        printf("  CPU time: %d\n", jobs[i].cpu_time);
+        printf("  Priority: %d\n", jobs[i].priority);
+        printf("  Start time: %ld\n", jobs[i].start_time);
+        printf("  Finish time: %ld\n", jobs[i].finish_time);
+        printf("  Wait time: %d\n", jobs[i].wait_time);
+    }
+    
+    return 0;
 
     
 }

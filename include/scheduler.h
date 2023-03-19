@@ -24,4 +24,4 @@ void *executor();
 void run_cmd(char *cmd);
 struct job remove_from_queue();
 void export_data(struct job my_job, int job_number);
-void show_stats();
+int show_stats();
