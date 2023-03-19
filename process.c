@@ -3,17 +3,20 @@
  * COMP7500/7506
  * Project 3: process.c 
  *
- * This program will be launched in fork_execv (see fork_execv.c).
+ * This program will be launched in the run_cmd() function of scheduler.c.
+ * The main functionality of this code is to sleep for a specified quantity
+ * of time specified by the user input.
+ * EX: "./process 5" will execute a process that sleeps for 5 seconds.
  *
  * Compilation Instruction: 
  * gcc process.c -o process
  * 
  * Reference: 
- * https://faq.cprogramming.com/cgi-bin/smartfaq.cgi?answer=1044654269&id=1043284392
- * Modified by Xiao Qin
+ * http://www.cs.ecu.edu/karl/4630/spr01/example1.html
+ * Modified by Caleb Powell
  * Department of Computer Science and Software Engineering
  * Auburn University
- * Feb. 6, 2018.
+ * Mar 19, 2023.
  */
 #include <stdio.h> 
 

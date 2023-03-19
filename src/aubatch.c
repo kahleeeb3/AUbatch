@@ -1,7 +1,34 @@
-// contain main and sets up the threads and all the condition variables
-// https://www.cs.cmu.edu/afs/cs/academic/class/15492-f07/www/pthreads.html
-// execv(): https://support.sas.com/documentation/onlinedoc/sasc/doc/lr2/execv.htm
-// http://www.cs.ecu.edu/karl/4630/spr01/example1.html
+/* 
+ * COMP7500
+ * Project 3: aubatch.c 
+ *
+ * This will create two threads: scheduler_thread and executor_thread.
+ * The scheduler_thread will take user input about jobs to execute,
+ * and schedule those jobs into a queue based on a selected 
+ * scheduling algorithm (FCFS: First Come, First Served,
+ * SJF: Shortest Job First, and Priority: Priority‐based scheduling). 
+ * 
+ * The executor_thread will physically run the jobs in the queue and output
+ * a performance evaluation on the following metrics: 
+ * Total number of job submitted, Average turnaround time,
+ * Average CPU time, Average waiting time, and Throughput.
+ *
+ * Compilation Instruction: 
+ * run the 'make' command in the terminal
+ * 
+ * Notes:
+ * running 'make clean' may be necessary to clear 'data' folder.
+ * 
+ * Reference: 
+ * https://www.cs.cmu.edu/afs/cs/academic/class/15492-f07/www/pthreads.html
+ * execv(): https://support.sas.com/documentation/onlinedoc/sasc/doc/lr2/execv.htm
+ * http://www.cs.ecu.edu/karl/4630/spr01/example1.html
+ * 
+ * Modified by Caleb Powell
+ * Department of Computer Science and Software Engineering
+ * Auburn University
+ * Mar. 19, 2023.
+ */
 
 #include <stdio.h> // printf()
 #include <stdlib.h> // srand(), exit()
@@ -14,7 +41,6 @@ pthread_cond_t job_queue_not_empty; // Condition variable for non empty queue
 
 int main(){
     srand(time(NULL)); // seed the random number generator with the current time
-    // commandline(); // run user interface
     // int iret1, iret2; // thread return values
     pthread_t scheduler_thread; /* Two concurrent threads */
     pthread_t executor_thread;

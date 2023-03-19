@@ -1,4 +1,22 @@
-// contains the scheduler and dispatcher modules
+/* 
+ * COMP7500
+ * Project 3: scheduler.c 
+ *
+ * Conatains modules for changing the Job Queue, and dispatching/executing jobs.
+ * 
+ * Notes:
+ * In the header file, we define a QUEUE_SIZE. However, this is a linked list so
+ * it's not necissary to have a max quantity. We define this to simulate a restriction
+ * on a buffer size even though one does not truly exist.
+ * 
+ * For more information on what each of the individual functions does, please
+ * look at the scheduler.h file in the `include/` folder.
+ * 
+ * Modified by Caleb Powell
+ * Department of Computer Science and Software Engineering
+ * Auburn University
+ * Mar. 19, 2023.
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,36 +30,16 @@
 #include <time.h>
 #include <dirent.h>
 
+// Global shared variables
 int cpu_time_range[2] = {1,10};
 int priority_range[2] = {1,10};
 char policy[10] = "fcfs"; // Switch Scheduling Policy
 int total_num_jobs = 5;
-
-/* Global shared variables */
-u_int job_queue_head = 0;
-u_int job_queue_tail = 0;
 u_int jobs_in_queue = 0;
 u_int jobs_submitted = 0;
-
-struct job {
-    char name[MAX_JOB_NAME_LENGTH]; // job name
-    int cpu_time;                   // time required to complete the job
-    int priority;                   // job priority
-    time_t start_time;              // time job was submitted
-    time_t finish_time;             // time job finished
-    int wait_time;               // expected wait time
-};
-
-struct node {
-    struct job job_data;
-    struct node* next;
-    struct node* prev;
-};
-
-// struct job job_queue[QUEUE_SIZE];
 struct node* job_list = NULL;
 
-// SCHEDULER MODULES
+// *** THIS SECTION DEFINES MODULES USED BY THE SCHEDULER THREAD *** //
 
 void *scheduler(){
     while( jobs_submitted < total_num_jobs ){
@@ -58,12 +56,39 @@ void *scheduler(){
     return 0;
 }
 
+int add_job(int nargs, char **args){
+    // CREATE THE JOB
+    struct job new_job = create_job(args);
+
+    pthread_mutex_lock(&job_queue_lock); // lock the job queue
+
+    // INSERT INTO QUEUE
+    insert_into_queue(new_job, &job_list); // add job to queue
+
+    jobs_in_queue++; // increase the job count
+    jobs_submitted++;
+
+    pthread_cond_signal(&job_queue_not_empty); // tell execution process that the buffer isnt empty
+    pthread_mutex_unlock(&job_queue_lock); // unlock the job queue
+
+    // printf("Thread1: Added Job: {%s, %d, %d}. Total jobs: %d\n", new_job.name, 
+    // new_job.cpu_time, new_job.priority, jobs_submitted);
+    printf("Job %s was submitted.\n",new_job.name);
+    printf("Total number of jobs in the queue: %d\n",jobs_in_queue);
+    printf("Expected waiting time: %d seconds\n", new_job.wait_time);
+    printf("Scheduling Policy: %s.\n", policy);
+    return 0;
+}
+
 struct job create_job(char *args[]){
-    struct job new_job; // define new job
+
+    // define new job
+    struct job new_job;
+
     strcpy(new_job.name, args[1]); // set the name
     new_job.cpu_time = atoi(args[2]); //set cpu time
     new_job.priority = atoi(args[3]); // set the priority
-    time(&new_job.start_time);
+    time(&new_job.start_time); // set the time of creation
 
     // get wait time
     int sum = 0;
@@ -102,7 +127,7 @@ int insert_into_queue(struct job job_data, struct node** list_head){
     new_node->prev = NULL;
     new_node->next = NULL;
     
-    
+    // IF THE POLICY IS PRIORITY, LINK ELEMENTS ACCORDING TO THEIR PRIORITY NUMBER
     if(strcmp(policy, "priority") == 0){
         if (*list_head == NULL) {
             *list_head = new_node;
@@ -126,6 +151,7 @@ int insert_into_queue(struct job job_data, struct node** list_head){
         }
     }
 
+    // IF THE POLICY IS SHORTEST JOB FIRST
     else if(strcmp(policy, "sjf") == 0){
         if (*list_head == NULL) {
             *list_head = new_node;
@@ -149,6 +175,7 @@ int insert_into_queue(struct job job_data, struct node** list_head){
         }
     }
 
+    // IF THE POLICY IS FIRST COME FIRST SERVE
     else if(strcmp(policy, "fcfs") == 0){
         if (*list_head == NULL) {
             *list_head = new_node;
@@ -173,34 +200,6 @@ int insert_into_queue(struct job job_data, struct node** list_head){
     }
 
 
-    return 0;
-}
-
-int add_job(int nargs, char **args){
-    // CREATE THE JOB
-    struct job new_job = create_job(args);
-
-    pthread_mutex_lock(&job_queue_lock); // lock the job queue
-
-    // INSERT INTO QUEUE
-    insert_into_queue(new_job, &job_list); // add job to queue
-
-    jobs_in_queue++; // increase the job count
-    jobs_submitted++;
-    job_queue_head++; // move head forward
-    if(job_queue_head == QUEUE_SIZE){
-        job_queue_head = 0;
-    }
-
-    pthread_cond_signal(&job_queue_not_empty); // tell execution process that the buffer isnt empty
-    pthread_mutex_unlock(&job_queue_lock); // unlock the job queue
-
-    // printf("Thread1: Added Job: {%s, %d, %d}. Total jobs: %d\n", new_job.name, 
-    // new_job.cpu_time, new_job.priority, jobs_submitted);
-    printf("Job %s was submitted.\n",new_job.name);
-    printf("Total number of jobs in the queue: %d\n",jobs_in_queue);
-    printf("Expected waiting time: %d seconds\n", new_job.wait_time);
-    printf("Scheduling Policy: %s.\n", policy);
     return 0;
 }
 
@@ -309,7 +308,7 @@ int automated_input(int nargs, char **args){
     return 0;
 }
 
-// EXECUTOR MODULES
+// *** THIS SECTION DEFINES MODULES USED BY THE EXECUTOR THREAD *** //
 void *executor(){
     int jobs_removed = 0;
     while (jobs_removed < total_num_jobs){
@@ -323,11 +322,6 @@ void *executor(){
         // REMOVE JOB FROM QUEUE
         jobs_in_queue--; //decrease the job count
         struct job removed_job = remove_from_queue();
-
-        job_queue_tail++;
-        if(job_queue_tail == QUEUE_SIZE){
-            job_queue_tail = 0;
-        }
 
         pthread_cond_signal(&job_queue_not_full);
         pthread_mutex_unlock(&job_queue_lock);
@@ -348,6 +342,23 @@ void *executor(){
     }
 
     return 0;
+}
+
+struct job remove_from_queue(){
+
+    struct job removed_job;
+
+    if (job_list == NULL) {
+        // the queue is empty, there is nothing to remove
+        return removed_job;
+    }
+
+    struct node* first_node = job_list;
+    removed_job = first_node->job_data;
+    job_list = first_node->next;
+    free(first_node);
+
+    return removed_job;
 }
 
 void run_cmd(char *cmd){
@@ -384,23 +395,6 @@ void run_cmd(char *cmd){
     }
 }
 
-struct job remove_from_queue(){
-
-    struct job removed_job;
-
-    if (job_list == NULL) {
-        // the queue is empty, there is nothing to remove
-        return removed_job;
-    }
-
-    struct node* first_node = job_list;
-    removed_job = first_node->job_data;
-    job_list = first_node->next;
-    free(first_node);
-
-    return removed_job;
-}
-
 void export_data(struct job my_job, int job_number){
     FILE *fp;
 
@@ -412,21 +406,6 @@ void export_data(struct job my_job, int job_number){
     fclose(fp);
 
     // printf("saving file data/job_%d.txt\n", job_number);
-}
-
-void read_job_from_file(const char* filename, struct job* job) {
-    // Open the file for reading
-    FILE* file = fopen(filename, "r");
-    if (!file) {
-        perror("Unable to open file");
-        return;
-    }
-    
-    // Read the job data from the file
-    fscanf(file, "%[^,],%d,%d,%ld,%ld,%d\n", job->name, &job->cpu_time, &job->priority, &job->start_time, &job->finish_time, &job->wait_time);
-
-    // Close the file
-    fclose(file);
 }
 
 int show_stats(){
@@ -495,4 +474,19 @@ int show_stats(){
     return 0;
 
     
+}
+
+void read_job_from_file(const char* filename, struct job* job) {
+    // Open the file for reading
+    FILE* file = fopen(filename, "r");
+    if (!file) {
+        perror("Unable to open file");
+        return;
+    }
+    
+    // Read the job data from the file
+    fscanf(file, "%[^,],%d,%d,%ld,%ld,%d\n", job->name, &job->cpu_time, &job->priority, &job->start_time, &job->finish_time, &job->wait_time);
+
+    // Close the file
+    fclose(file);
 }

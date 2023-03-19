@@ -1,3 +1,18 @@
+/* 
+ * COMP7500
+ * Project 3: commandline.c 
+ *
+ * Conatains modules for collecting user input.
+ * 
+ * For more information on what each of the individual functions does, please
+ * look at the commandline.h file in the `include/` folder.
+ * 
+ * Modified by Caleb Powell
+ * Department of Computer Science and Software Engineering
+ * Auburn University
+ * Mar. 19, 2023.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
