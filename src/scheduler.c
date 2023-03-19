@@ -50,6 +50,8 @@ void *scheduler(){
             pthread_cond_wait(&job_queue_not_full, &job_queue_lock);
         }
         pthread_mutex_unlock(&job_queue_lock); // unlock the job queue since creat_job() is not critical
+        printf("Welcome to Caleb Powell's batch job scheduler Version 1.0\n");
+        printf("Type 'help' to find more about AUbatch commands.\n");
         get_input();
     }
 
@@ -253,7 +255,7 @@ int automated_input(int nargs, char **args){
     // test mybenchmark fcfs 5 3 1 10
 
     if(nargs != 7){
-        printf("try again loser\n");
+        printf("try again\n");
     }
 
     char benchmark[10];
