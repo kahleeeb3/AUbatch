@@ -201,7 +201,7 @@ int automated_input(int nargs, char **args){
 // EXECUTOR MODULES
 void *executor(){
     int jobs_removed = 0;
-    while (jobs_submitted < TOTAL_JOB_NUM){
+    while (jobs_removed < TOTAL_JOB_NUM){
 
         pthread_mutex_lock(&job_queue_lock); // lock the job queue
         // wait for queue to not be empty
@@ -232,6 +232,7 @@ void *executor(){
         run_cmd(my_cmd);
         time(&removed_job.finish_time); // mark the time finish
         export_data(removed_job, jobs_removed);
+        printf("\n exported data \n");
         jobs_removed++;
         // sleep(SERVICE_RATE); // sleep for service rate
     }
@@ -322,7 +323,8 @@ void read_job_from_file(const char* filename, struct job* job) {
 
 int show_stats(){
 
-    printf("Getting data\n");
+    // printf("Getting data\n");
+    printf("\n");
 
     struct job jobs[TOTAL_JOB_NUM];
     int num_jobs = 0;
@@ -355,18 +357,33 @@ int show_stats(){
    // Close the data directory
     closedir(dir);
     
-    // Print the jobs array
+    // GET STATS
+
     int i;
+    double avg_turnaround_time = 0;
+    double avg_cpu_time = 0;
+    double avg_wait_time = 0;
+
     for (i = 0; i < num_jobs; i++) {
-        printf("Job %d:\n", i);
-        printf("  Name: %s\n", jobs[i].name);
-        printf("  CPU time: %d\n", jobs[i].cpu_time);
-        printf("  Priority: %d\n", jobs[i].priority);
-        printf("  Start time: %ld\n", jobs[i].start_time);
-        printf("  Finish time: %ld\n", jobs[i].finish_time);
-        printf("  Wait time: %d\n", jobs[i].wait_time);
+        avg_turnaround_time += difftime(jobs[i].finish_time, jobs[i].start_time);
+        avg_cpu_time += jobs[i].cpu_time;
+        avg_wait_time += jobs[i].wait_time;        
     }
+
+    // get average
+    avg_turnaround_time /= num_jobs;
+    avg_cpu_time /= num_jobs;
+    avg_wait_time /= num_jobs;
+    double throughput = num_jobs / (double) difftime(jobs[num_jobs-1].finish_time, jobs[0].start_time);
     
+
+    // print the stats
+    printf("Total number of jobs submitted: %d\n", num_jobs);
+    printf("Average turnaround time: %.2f seconds\n", avg_turnaround_time);
+    printf("Average CPU time: %.2f seconds\n", avg_cpu_time);
+    printf("Average waiting time: %.2f seconds\n", avg_wait_time);
+    printf("Throughput: %.2f jobs per second\n", throughput);
+
     return 0;
 
     
