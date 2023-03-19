@@ -27,7 +27,8 @@ static struct
     {"fcfs\n", cmd_scheduling},
 	{"sjf\n", cmd_scheduling},
 	{"priority\n", cmd_scheduling},
-    // {"t\n", automated_input},
+    {"t", automated_input},
+    {"test", automated_input},
 	/* Please add more operations below. */
 	{NULL, NULL}};
 

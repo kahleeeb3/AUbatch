@@ -16,7 +16,8 @@ int main(){
     srand(time(NULL)); // seed the random number generator with the current time
     // commandline(); // run user interface
     // int iret1, iret2; // thread return values
-    pthread_t scheduler_thread, executor_thread; /* Two concurrent threads */
+    pthread_t scheduler_thread; /* Two concurrent threads */
+    pthread_t executor_thread;
     char *message1 = "Scheduler Thread";
     char *message2 = "Executor Thread";
     
@@ -33,6 +34,7 @@ int main(){
     // wait we run the risk of executing an exit which will terminate
     // the process and all threads before the threads have completed.
     pthread_join(scheduler_thread, NULL);
+    printf("\nPlease wait for jobs to finish executing...\n");
     pthread_join(executor_thread, NULL);
 
     show_stats();
