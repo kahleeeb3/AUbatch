@@ -13,9 +13,9 @@ CFLAGS=-lpthread -Wall -I$(IDIR)
 # name of the executable file
 TARGET = aubatch
 # list the header file names
-INC_LIST = scheduler.h
+INC_LIST = scheduler.h commandline.h
 # list the object file names
-OBJ_LIST = aubatch.o scheduler.o
+OBJ_LIST = aubatch.o scheduler.o commandline.o
 
 OBJ_DIR=obj# directory for storing object files
 SRC_DIR=src# directory for storing source code

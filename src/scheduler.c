@@ -8,9 +8,11 @@
 #include <string.h>
 #include <scheduler.h>
 #include <sys/wait.h> // wait function
+#include <commandline.h>
 
 int cpu_time_range[] = {1,10};
 int priority_range[] = {1,10};
+char policy[10] = "fcfs"; // Switch Scheduling Policy
 
 /* Global shared variables */
 u_int job_queue_head = 0;
@@ -26,60 +28,8 @@ struct job {
 
 struct job job_queue[QUEUE_SIZE];
 
-int parsecmd(char *cmd, char *args[]) {
-    // (1) split the user input into an argument array
-	char *word; // pointer to the word value
-	char *context; // ensures correct context during threading
-	int nargs = 0; // number of arguments
-
-
-	for (word = strtok_r(cmd, " ", &context);
-		 word != NULL;
-		 word = strtok_r(NULL, " ", &context))
-	{
-
-		if (nargs >= MAX_ARGS)
-		{
-			printf("Command line has too many words\n");
-			return 1;
-		}
-		args[nargs++] = word;
-	}
-
-	// if no arguments were passed
-	if (nargs == 0){
-		return 1;
-	}
-
-    // if there is some empty space at end, set null
-    while(nargs < MAX_ARGS){
-        args[nargs++] = NULL;
-    }
-
-    return 0;
-}
-
 // HELPER FUNCTIONS
-void automated_input(char *cmd){
-    int min, max, range, random_cpu_time, random_priority;
-
-    //set cpu time
-    min = cpu_time_range[0];
-    max = cpu_time_range[1];
-    range = max - min + 1;
-    random_cpu_time = min + (rand() % range);
-
-    // set the priority
-    min = priority_range[0];
-    max = priority_range[1];
-    range = max - min + 1;
-    random_priority = min + (rand() % range);
-
-    // set the name
-    sprintf(cmd, "run process %d %d\n", random_cpu_time , random_priority);
-
-
-}
+/*
 
 void run_cmd(char *cmd)
 {
@@ -129,18 +79,6 @@ void print_job_queue(){
     printf("\n");
 }
 
-struct job create_job(char *args[]){
-    struct job new_job; // define new job
-    strcpy(new_job.name, args[1]); // set the name
-    new_job.cpu_time = atoi(args[2]); //set cpu time
-    new_job.priority = atoi(args[3]); // set the priority
-    return new_job;
-}
-
-void insert_into_queue(struct job *job_ptr){
-    job_queue[job_queue_head] = *job_ptr;
-}
-
 struct job remove_from_queue(){
     // remove from the queue
     struct job removed_job = job_queue[job_queue_tail]; // select the job to remove
@@ -157,6 +95,22 @@ struct job remove_from_queue(){
     
     return removed_job;
 }
+*/
+
+struct job create_job(char *args[]){
+    struct job new_job; // define new job
+    strcpy(new_job.name, args[1]); // set the name
+    new_job.cpu_time = atoi(args[2]); //set cpu time
+    new_job.priority = atoi(args[3]); // set the priority
+    return new_job;
+}
+
+int insert_into_queue(struct job *job_ptr){
+    job_queue[job_queue_head] = *job_ptr;
+    return 0;
+}
+
+
 
 void *scheduler(){
     while( jobs_submitted < TOTAL_JOB_NUM ){
@@ -168,44 +122,18 @@ void *scheduler(){
         }
         pthread_mutex_unlock(&job_queue_lock); // unlock the job queue since creat_job() is not critical
 
-        // GET USER INPUT AS A STRING
-        char *temp_cmd;
-        size_t cmd_size = MAX_CMD;
-        temp_cmd = (char *)malloc(cmd_size * sizeof(char));
-        automated_input(temp_cmd); // simulate a user input of "run process x x"
-        // printf("\n>");
-		// getline(&temp_cmd, &cmd_size, stdin);
+        get_input();
 
-        // PARSE THE USER INPUT
-        char *args[MAX_ARGS];
-        parsecmd(temp_cmd, args);
-        if( strcmp(args[0], "run") || strcmp(args[1], "process")){
-            exit(0);
-        }
-        
-        // create the job
-        struct job new_job = create_job(args);
-        
-        pthread_mutex_lock(&job_queue_lock); // lock the job queue
-        insert_into_queue(&new_job); // add job to queue
-        jobs_in_queue++; // increase the job count
-        jobs_submitted++;
-        job_queue_head++; // move head forward
-        if(job_queue_head == QUEUE_SIZE){
-            job_queue_head = 0;
-        }
-        printf("Thread1: Added Job: {%s, %d, %d}. Total jobs: %d\n", new_job.name, 
-        new_job.cpu_time, new_job.priority, jobs_submitted);
-        // print_job_queue();
         pthread_cond_signal(&job_queue_not_empty); // tell execution process that the buffer isnt empty
+        // there is another lock within cmd_run so unlock here
         pthread_mutex_unlock(&job_queue_lock); // unlock the job queue
-        // sleep(ARRIVAL_RATE);
     }
 
     return 0;
 }
 
 void *executor(){
+    /*
     while (jobs_submitted < TOTAL_JOB_NUM){
 
         pthread_mutex_lock(&job_queue_lock); // lock the job queue
@@ -236,6 +164,75 @@ void *executor(){
         pthread_mutex_unlock(&job_queue_lock);
 
     }
-
+    */
     return 0;
+}
+
+int cmd_run(int nargs, char **args){
+    // CREATE THE JOB
+    struct job new_job = create_job(args);
+
+    // INSERT INTO QUEUE
+    pthread_mutex_lock(&job_queue_lock); // lock the job queue
+    insert_into_queue(&new_job); // add job to queue
+    jobs_in_queue++; // increase the job count
+    jobs_submitted++;
+    job_queue_head++; // move head forward
+    if(job_queue_head == QUEUE_SIZE){
+        job_queue_head = 0;
+    }
+    printf("Thread1: Added Job: {%s, %d, %d}. Total jobs: %d\n", new_job.name, 
+    new_job.cpu_time, new_job.priority, jobs_submitted);
+    return 0;
+}
+
+int cmd_list(int nargs, char **args)
+{
+    printf("Total number of jobs in the queue: %d\n",jobs_in_queue);
+
+    // Print the menu
+    printf("Scheduling Policy: %s.\n",policy);
+    printf("Name%*s", MAX_JOB_NAME_LENGTH-4, "");
+    printf("CPU_TIME ");
+    printf("Pri ");
+    printf("Progress\n");
+
+    // print each job information
+    int i;
+    for (i = 0; i < jobs_in_queue; i++) {
+        if (job_queue[i].name != NULL) {
+            int jobNameLen = strlen(job_queue[i].name);
+            printf("%s%*s", job_queue[i].name, MAX_JOB_NAME_LENGTH-jobNameLen, "");
+            printf("%d%*s", job_queue[i].cpu_time, 8, "");
+            printf("%d%*s", job_queue[i].priority, 3, "");
+            printf("TEMP\n");
+        }
+    }
+    return 0;
+}
+
+// void automated_input(char *cmd)
+int automated_input(int nargs, char **args)
+{
+    // int min, max, range, random_cpu_time, random_priority;
+
+    // //set cpu time
+    // min = cpu_time_range[0];
+    // max = cpu_time_range[1];
+    // range = max - min + 1;
+    // random_cpu_time = min + (rand() % range);
+
+    // // set the priority
+    // min = priority_range[0];
+    // max = priority_range[1];
+    // range = max - min + 1;
+    // random_priority = min + (rand() % range);
+
+    // // set the name
+    // sprintf(cmd, "run process %d %d\n", random_cpu_time , random_priority);
+
+    printf("RAN THIS");
+    return 0;
+
+
 }
