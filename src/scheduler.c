@@ -32,8 +32,6 @@ struct job {
 };
 
 struct job job_queue[QUEUE_SIZE];
-// time_t start_process_time;
-// time_t finish_process_time;
 
 // SCHEDULER MODULES
 
@@ -232,7 +230,6 @@ void *executor(){
         run_cmd(my_cmd);
         time(&removed_job.finish_time); // mark the time finish
         export_data(removed_job, jobs_removed);
-        printf("\n exported data \n");
         jobs_removed++;
         // sleep(SERVICE_RATE); // sleep for service rate
     }
@@ -304,7 +301,6 @@ void export_data(struct job my_job, int job_number){
     // printf("saving file data/job_%d.txt\n", job_number);
 }
 
-
 void read_job_from_file(const char* filename, struct job* job) {
     // Open the file for reading
     FILE* file = fopen(filename, "r");
@@ -319,7 +315,6 @@ void read_job_from_file(const char* filename, struct job* job) {
     // Close the file
     fclose(file);
 }
-
 
 int show_stats(){
 
