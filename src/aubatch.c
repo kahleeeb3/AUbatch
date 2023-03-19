@@ -15,14 +15,14 @@ pthread_cond_t job_queue_not_empty; // Condition variable for non empty queue
 int main(){
     srand(time(NULL)); // seed the random number generator with the current time
     // commandline(); // run user interface
-    int iret1, iret2; // thread return values
+    // int iret1, iret2; // thread return values
     pthread_t scheduler_thread, executor_thread; /* Two concurrent threads */
     char *message1 = "Scheduler Thread";
     char *message2 = "Executor Thread";
     
     // Create independent threads each of which will execute function
-    iret1 = pthread_create(&scheduler_thread, NULL, scheduler, (void *)message1);
-    iret2 = pthread_create(&executor_thread, NULL, executor, (void *)message2);
+    pthread_create(&scheduler_thread, NULL, scheduler, (void *)message1);
+    pthread_create(&executor_thread, NULL, executor, (void *)message2);
 
     // Initialize the lock the two condition variables
     pthread_mutex_init(&job_queue_lock, NULL);
@@ -35,7 +35,7 @@ int main(){
     pthread_join(scheduler_thread, NULL);
     pthread_join(executor_thread, NULL);
 
-    printf("command_thread returns: %d\n", iret1);
-    printf("executor_thread returns: %d\n", iret2);
+    // printf("command_thread returns: %d\n", iret1);
+    // printf("executor_thread returns: %d\n", iret2);
     exit(0);
 }
