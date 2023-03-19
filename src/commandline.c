@@ -132,14 +132,6 @@ int cmd_dispatch(char *args[], int num_args){
 	return 1;
 }
 
-void showmenu(const char *name, const char *x[])
-{
-	int i;
-    for(i = 0; x[i]; i++){
-        printf("%s\n",x[i]);
-    }
-}
-
 int cmd_helpmenu(int n, char **a)
 {
 	(void)n;
@@ -147,6 +139,14 @@ int cmd_helpmenu(int n, char **a)
 
 	showmenu("AUbatch help menu", helpmenu);
 	return 0;
+}
+
+void showmenu(const char *name, const char *x[])
+{
+	int i;
+    for(i = 0; x[i]; i++){
+        printf("%s\n",x[i]);
+    }
 }
 
 int cmd_quit(int nargs, char **args)
