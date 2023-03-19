@@ -9,10 +9,12 @@
 #include <scheduler.h>
 #include <sys/wait.h> // wait function
 #include <commandline.h>
+#include <time.h>
 
 int cpu_time_range[] = {1,10};
 int priority_range[] = {1,10};
 char policy[10] = "fcfs"; // Switch Scheduling Policy
+time_t current_time;
 
 /* Global shared variables */
 u_int job_queue_head = 0;
@@ -105,42 +107,68 @@ int cmd_list(int nargs, char **args)
     return 0;
 }
 
-int automated_input(int nargs, char **args){
-    int i, min, max, range, random_cpu_time, random_priority;
-    for(i = 0; i< TOTAL_JOB_NUM; i++){
-        
-        //set cpu time
-        min = cpu_time_range[0];
-        max = cpu_time_range[1];
-        range = max - min + 1;
-        random_cpu_time = min + (rand() % range);
-
-        // set the priority
-        min = priority_range[0];
-        max = priority_range[1];
-        range = max - min + 1;
-        random_priority = min + (rand() % range);
-
-        // GET USER INPUT AS A STRING
-        char *temp_cmd;
-        size_t cmd_size = MAX_CMD;
-        temp_cmd = (char *)malloc(cmd_size * sizeof(char));
-        sprintf(temp_cmd, "run process %d %d\n", random_cpu_time , random_priority);
-
-        // PARSE THE USER INPUT
-        char *args[MAX_ARGS];
-        int num_args; // number of argumenst
-        parsecmd(temp_cmd, args, &num_args);
-
-        // DISPATCH THE USER COMMAND
-        cmd_dispatch(args, num_args);
-
+int cmd_scheduling(int nargs, char **args){
+    
+    if(strcmp(args[0],"fcfs\n") == 0){
+        strcpy(policy, "fcfs");
     }
+
+    else if(strcmp(args[0],"sjf\n") == 0){
+        strcpy(policy,"sjf");
+    }
+
+    else if(strcmp(args[0],"priority\n") == 0){
+        strcpy(policy,"priority");
+    }
+
+    else{
+        printf("Not a scheduling option.\n");
+        return 1;
+    }
+
+    printf("Scheduling policy is switched to %s. ", policy);
+    printf("All the %d waiting jobs have been rescheduled.\n", jobs_in_queue);
+
+    return 0;
+
+}
+
+// int automated_input(int nargs, char **args){
+//     int i, min, max, range, random_cpu_time, random_priority;
+//     for(i = 0; i< TOTAL_JOB_NUM; i++){
+        
+//         //set cpu time
+//         min = cpu_time_range[0];
+//         max = cpu_time_range[1];
+//         range = max - min + 1;
+//         random_cpu_time = min + (rand() % range);
+
+//         // set the priority
+//         min = priority_range[0];
+//         max = priority_range[1];
+//         range = max - min + 1;
+//         random_priority = min + (rand() % range);
+
+//         // GET USER INPUT AS A STRING
+//         char *temp_cmd;
+//         size_t cmd_size = MAX_CMD;
+//         temp_cmd = (char *)malloc(cmd_size * sizeof(char));
+//         sprintf(temp_cmd, "run process %d %d\n", random_cpu_time , random_priority);
+
+//         // PARSE THE USER INPUT
+//         char *args[MAX_ARGS];
+//         int num_args; // number of argumenst
+//         parsecmd(temp_cmd, args, &num_args);
+
+//         // DISPATCH THE USER COMMAND
+//         cmd_dispatch(args, num_args);
+
+//     }
     
 
-    pthread_cond_signal(&job_queue_not_empty); // tell execution process that the buffer isnt empty
-    return 0;
-}
+//     pthread_cond_signal(&job_queue_not_empty); // tell execution process that the buffer isnt empty
+//     return 0;
+// }
 
 // EXECUTOR MODULES
 void *executor(){

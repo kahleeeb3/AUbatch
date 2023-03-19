@@ -24,7 +24,10 @@ static struct
 	{"run", add_job},
     {"list\n", cmd_list},
 	{"l\n", cmd_list},
-    {"t\n", automated_input},
+    {"fcfs\n", cmd_scheduling},
+	{"sjf\n", cmd_scheduling},
+	{"priority\n", cmd_scheduling},
+    // {"t\n", automated_input},
 	/* Please add more operations below. */
 	{NULL, NULL}};
 

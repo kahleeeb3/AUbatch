@@ -17,7 +17,8 @@ extern pthread_cond_t job_queue_not_empty; // Condition variable for non empty q
 void *scheduler();
 int add_job(int nargs, char **args);
 int cmd_list(int nargs, char **args);
-int automated_input(int nargs, char **args);
+// int automated_input(int nargs, char **args);
+int cmd_scheduling(int nargs, char **args);
 
 void *executor();
 void run_cmd(char *cmd);
