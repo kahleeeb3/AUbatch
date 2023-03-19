@@ -10,6 +10,7 @@
 #include <sys/wait.h> // wait function
 #include <commandline.h>
 #include <time.h>
+#include <dirent.h>
 
 int cpu_time_range[] = {1,10};
 int priority_range[] = {1,10};
@@ -27,7 +28,7 @@ struct job {
     int priority;                   // job priority
     time_t start_time;              // time job was started
     time_t finish_time;             // time job finished
-    time_t wait_time;               // expected wait time
+    int wait_time;               // expected wait time
 };
 
 struct job job_queue[QUEUE_SIZE];
@@ -57,6 +58,14 @@ struct job create_job(char *args[]){
     new_job.cpu_time = atoi(args[2]); //set cpu time
     new_job.priority = atoi(args[3]); // set the priority
     time(&new_job.start_time);
+
+    // get wait time
+    int i, sum;
+    for(i=0; i<= QUEUE_SIZE; i++){
+        sum += job_queue[i].cpu_time;
+    }
+    new_job.wait_time = sum;
+
     return new_job;
 }
 
@@ -132,7 +141,7 @@ int cmd_list(int nargs, char **args)
 
     // print each job information
     int i;
-    for (i = 0; i < QUEUE_SIZE; i++) {
+    for (i = 0; i <= QUEUE_SIZE; i++) {
         
         int jobNameLen = strlen(job_queue[i].name);
         printf("%s%*s", job_queue[i].name, MAX_JOB_NAME_LENGTH-jobNameLen, "");
@@ -191,6 +200,7 @@ int automated_input(int nargs, char **args){
 
 // EXECUTOR MODULES
 void *executor(){
+    int jobs_removed = 0;
     while (jobs_submitted < TOTAL_JOB_NUM){
 
         pthread_mutex_lock(&job_queue_lock); // lock the job queue
@@ -221,11 +231,11 @@ void *executor(){
         sprintf(my_cmd, "%s %d\n", removed_job.name , removed_job.cpu_time);
         run_cmd(my_cmd);
         time(&removed_job.finish_time); // mark the time finish
-
+        export_data(removed_job, jobs_removed);
+        jobs_removed++;
         // sleep(SERVICE_RATE); // sleep for service rate
-        
-
     }
+
     return 0;
 }
 
@@ -280,5 +290,22 @@ struct job remove_from_queue(){
     return removed_job;
 }
 
+void export_data(struct job my_job, int job_number){
+    FILE *fp;
 
+    char filename[50];
+    sprintf(filename, "data/job_%d.txt", job_number);
 
+    fp = fopen(filename, "w");
+    fprintf(fp, "%s,%d,%d,%ld,%ld,%d\n", my_job.name, my_job.cpu_time, my_job.priority, my_job.start_time, my_job.finish_time, my_job.wait_time);
+    fclose(fp);
+
+    // printf("saving file data/job_%d.txt\n", job_number);
+}
+
+void show_stats(){
+
+    printf("Getting data\n");
+
+    
+}

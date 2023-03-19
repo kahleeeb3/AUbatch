@@ -35,6 +35,8 @@ $(TARGET): $(OBJ)
 
 clean: #remove object files and executable
 	rm -f $(OBJ_DIR)/*.o *~ core $(TARGET)
+	rm -r ./data
+	mkdir data
 
 run: # run the executable
 	./$(TARGET)

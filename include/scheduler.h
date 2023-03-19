@@ -5,7 +5,7 @@
 // #define TOTAL_JOB_NUM 5 // total number of jobs to submit 
 // #define QUEUE_SIZE 10 // size of job queue
 #define TOTAL_JOB_NUM 5 // total number of jobs to submit 
-#define QUEUE_SIZE 3 // size of job queue
+#define QUEUE_SIZE 10 // size of job queue
 
 #define ARRIVAL_RATE 1 //number of jobs submitted every second
 #define SERVICE_RATE 1 //number of jobs submitted every second
@@ -23,3 +23,5 @@ int cmd_scheduling(int nargs, char **args);
 void *executor();
 void run_cmd(char *cmd);
 struct job remove_from_queue();
+void export_data(struct job my_job, int job_number);
+void show_stats();

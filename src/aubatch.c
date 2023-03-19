@@ -35,6 +35,8 @@ int main(){
     pthread_join(scheduler_thread, NULL);
     pthread_join(executor_thread, NULL);
 
+    show_stats();
+
     // printf("command_thread returns: %d\n", iret1);
     // printf("executor_thread returns: %d\n", iret2);
     exit(0);
