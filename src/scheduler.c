@@ -83,7 +83,7 @@ struct job create_job(char *args[]){
         }
     }
 
-    else if(strcmp(policy, "fcfs") == 0){
+    if(strcmp(policy, "fcfs") == 0){
         while (current_node != NULL && current_node->job_data.start_time < new_job.start_time) {
             sum += current_node->job_data.cpu_time;
             current_node = current_node->next;
@@ -199,7 +199,7 @@ int add_job(int nargs, char **args){
     // new_job.cpu_time, new_job.priority, jobs_submitted);
     printf("Job %s was submitted.\n",new_job.name);
     printf("Total number of jobs in the queue: %d\n",jobs_in_queue);
-    printf("Expected waiting time: %d seconds\n", 0);
+    printf("Expected waiting time: %d seconds\n", new_job.wait_time);
     printf("Scheduling Policy: %s.\n", policy);
     return 0;
 }
@@ -250,7 +250,8 @@ int cmd_list(int nargs, char **args)
 }
 
 int automated_input(int nargs, char **args){
-    // test <benchmark> <policy> <num_of_jobs> <priority_levels> <min_CPU_time> <max_CPU_time> 
+    // test <benchmark> <policy> <num_of_jobs> <priority_levels> <min_CPU_time> <max_CPU_time>
+    // test mybenchmark fcfs 5 3 1 10
 
     if(nargs != 7){
         printf("try again loser\n");
@@ -263,10 +264,7 @@ int automated_input(int nargs, char **args){
     priority_range[1] = atoi(args[4]);
     cpu_time_range[0] = atoi(args[5]);
     cpu_time_range[1] = atoi(args[6]);
-
-    // printf("test %s %s %d %d %d %d\n", benchmark,policy,total_num_jobs,priority_range[1],cpu_time_range[0],cpu_time_range[1]);
     
-
     int i, min, max, range, random_cpu_time, random_priority;
     for(i = 0; i< total_num_jobs; i++){
         
@@ -294,6 +292,17 @@ int automated_input(int nargs, char **args){
 
         // DISPATCH THE USER COMMAND
         cmd_dispatch(args, num_args);
+
+        if(i > 1){
+            pthread_mutex_lock(&job_queue_lock); // lock the job queue
+            // wait for queue to not be full
+            while(jobs_in_queue == QUEUE_SIZE){
+                printf("Buffer full. Please Wait.\n");
+                pthread_cond_wait(&job_queue_not_full, &job_queue_lock);
+            }
+            pthread_mutex_unlock(&job_queue_lock); // unlock the job queue since creat_job() is not critical
+        }
+        sleep(ARRIVAL_RATE); // Simulate an arrival time
 
     }    
 
