@@ -21,9 +21,9 @@ struct job {
 };
 
 struct node {
-    struct job job_data;
-    struct node* next;
-    struct node* prev;
+    struct job job_data;            // data that describes the job
+    struct node* next;              // pointer to next job in queue
+    struct node* prev;              // pointer to previous job in queue
 };
 
 
